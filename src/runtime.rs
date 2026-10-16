@@ -138,6 +138,13 @@ fn register_poll_timer(
         .insert_source(Timer::from_duration(POLL_INTERVAL), move |_, _, _meta| {
             let mut state = state.borrow_mut();
 
+            // A signalled shutdown may be dispatched in the same batch as this
+            // timer; never let a late poll overwrite the recorded outcome (the
+            // child's post-SIGTERM status) with a spurious `ChildExited`.
+            if state.outcome.is_some() || state.error.is_some() {
+                return TimeoutAction::Drop;
+            }
+
             match state.service.poll(Instant::now()) {
                 Ok(Progress::Pending) => {}
                 Ok(Progress::Ready(ready_display)) => {

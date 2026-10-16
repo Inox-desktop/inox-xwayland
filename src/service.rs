@@ -181,15 +181,19 @@ impl XwaylandService {
 
         let display = self.config.display;
 
+        // Once ready, do not probe the socket again: a real Xwayland logs a
+        // connect/disconnect for every probe, and readiness cannot be
+        // un-learned here (the satellite exits when Xwayland goes away).
+        if let Phase::Ready(ready) = self.phase {
+            return Ok(Progress::Ready(ready));
+        }
+
         if self.probe.is_ready(display) {
-            let becoming_ready = self.phase != Phase::Ready(display);
             self.phase = Phase::Ready(display);
 
-            if becoming_ready {
-                if let Some(path) = self.config.ready_file.clone() {
-                    write_ready_file(&path, display)
-                        .map_err(|source| ServiceError::ReadyFile { path, source })?;
-                }
+            if let Some(path) = self.config.ready_file.clone() {
+                write_ready_file(&path, display)
+                    .map_err(|source| ServiceError::ReadyFile { path, source })?;
             }
 
             return Ok(Progress::Ready(display));
