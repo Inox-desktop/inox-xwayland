@@ -1,0 +1,23 @@
+[package]
+name = "inox-xwayland"
+description = "XWayland integration service for the Inox compositor"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "BSD-3-Clause"
+repository = "https://github.com/Inox-desktop/inox-xwayland"
+readme = "README.md"
+keywords = ["wayland", "desktop", "inox"]
+categories = ["desktop"]
+
+[dependencies]
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[lints.clippy]
+all = "warn"
