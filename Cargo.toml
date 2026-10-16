@@ -3,17 +3,29 @@ name = "inox-xwayland"
 description = "XWayland integration service for the Inox compositor"
 version = "0.1.0"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.86"
 license = "BSD-3-Clause"
 repository = "https://github.com/Inox-desktop/inox-xwayland"
 readme = "README.md"
-keywords = ["wayland", "desktop", "inox"]
+keywords = ["wayland", "desktop", "inox", "xwayland"]
 categories = ["desktop"]
 
 [dependencies]
 anyhow = "1"
+calloop = { version = "0.14", features = ["signals"] }
+# inox-common is pinned to a release tag (root AGENTS.md §8). The explicit
+# `version` is required because `deny.toml` sets `[bans] wildcards = "deny"`;
+# without it the git dependency would carry an implicit `*` requirement.
+inox-common = { git = "https://github.com/Inox-desktop/inox-common", tag = "v0.1.0", version = "0.1" }
+# rustix is used to send SIGTERM to the supervised satellite process; the
+# `process` feature exposes the safe `process::kill_process` API, which keeps
+# the crate free of `unsafe`.
+rustix = { version = "1", features = ["process"] }
+thiserror = "2"
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[dev-dependencies]
+tempfile = "3"
 
 [lints.rust]
 unsafe_code = "forbid"

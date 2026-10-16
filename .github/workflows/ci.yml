@@ -47,3 +47,32 @@ jobs:
 
       - name: Deny
         run: cargo deny check
+
+  e2e:
+    name: headless XWayland end-to-end
+    runs-on: ubuntu-latest
+    env:
+      # No GPU on the runner: force Mesa's llvmpipe software rasteriser.
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: System dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            weston xwayland x11-apps x11-utils \
+            clang libxcb1 libxcb-cursor0 libxcb-cursor-dev pkg-config libegl1
+
+      - name: Install xwayland-satellite
+        run: cargo install --locked --git https://github.com/Supreeeme/xwayland-satellite --tag v0.8.3 xwayland-satellite
+
+      - name: Headless end-to-end test
+        run: INOX_XWAYLAND_E2E=1 cargo test --all-features --test headless_x11_mapping -- --nocapture
