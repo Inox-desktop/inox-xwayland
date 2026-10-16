@@ -25,3 +25,6 @@ wildcards = "deny"
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
+# inox-common is consumed as a git dependency pinned to tag = "v0.1.0"
+# (root AGENTS.md §8), which requires an explicit allow-list entry.
+allow-git = ["https://github.com/Inox-desktop/inox-common"]
